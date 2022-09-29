@@ -1,0 +1,399 @@
+---
+title: "Google Data Analytics Capstone Case Study"
+author: "Kevin Kent Ventura"
+date: '2022-03-16'
+output:
+  pdf_document: default
+  html_document: default
+editor_options:
+  markdown:
+    wrap: 72
+---
+
+**Project: Bellabeat**
+
+![](C:/Users/Kent/Desktop/Coursera/DATA%20ANALYTICS/COURSE%208_Google%20Data%20Analytics%20Capstone/Capstone%20Project/Casestudy_Bellabeat/Bellabeat_cleaning/Bellabeat_CaseStudy/Case_studyFinal_Documentation/Bellabeat.jpg)
+
+How can a Wellness Technology Company Play It Smart?
+
+#Introduction
+
+This is part of Course 8: Google Data Analytics: Capstone in relation to
+Google Professional Data Analytics Certificate. In this case study, I am
+a junior data analyst working on the marketing analyst team at
+Bellabeat, a high-tech manufacturer of health-focused products for
+women. Bellabeat is a successful small company, but they have the
+potential to become a larger player in the global smart device market.
+
+In this case-study, I will follow the 6 steps of Data Analysis process
+in which in this course tackle from Course 1 to 7. This includes: *Ask*,
+*Prepare*, *Process*, *Analyze*, *Share*, *Act*.
+
+**PHASE 1: ASK**
+
+**1.0 Guiding Questions for this phase:**
+
+1.  What are some trends in smart device usage?
+2.  How could these trends apply to Bellabeat marketing strategy?
+3.  How could these trends help in influence Bellabeat marketing
+    strategy?
+
+**1.1 Business Task:**
+
+-   Analyze Fitbit fitness tracker data to gain insights into how
+    consumers are using the FitBit app and discover trends for Bellabeat
+    marketing strategy.
+
+**1.2 Business Objectives**
+
+1.  What are some trends in smart device usage?
+2.  How could these trends apply to Bellabeat marketing strategy?
+3.  How could these trends help in influence Bellabeat marketing
+    strategy?
+
+**1.3 Deliverables:**
+
+-   A clear summary of the business task
+-   A description of all data sources used
+-   Documentation of any cleaning or manipulation of data
+-   A summary of analysis
+-   Supporting visualizations and key findings
+-   High-level content recommendations based on the analysis
+
+**1.4 Key Stakeholders:**
+
+-   Urška Sršen: Bellabeat's co-founder and Chief Creative Officer
+-   Sando Mur: Mathematician, Bellabeat's co-founder and key member of
+    the Bellabeat executive team
+-   Bellabeat marketing analytics team: A team of data analysts guiding
+    Bellabeat's marketing strategy.
+
+**PHASE2: PREPARE**
+
+**2.1 About the Data Source and where it is stored:**
+
+-   Data is publicly available on [Kaggle: FitBit Fitness Tracker
+    Data](https://www.kaggle.com/arashnic/fitbit) and stored in 18 csv
+    files.
+-   Thirty eligible Fitbit users consented to the submission of personal
+    tracker data, including minute-level output for physical activity,
+    heart rate, and sleep monitoring.
+-   Data collected from April to May 2016
+-   Data collected includes information about daily activity, steps, and
+    heart rate that can be used to explore users' habits.
+
+**2.2 How is the data organized? Is it in long or wide format?**
+
+-   The provided from source is in a long format. Each file contains
+    different type of activity recorded in a CSV format.
+
+**2.3 Are there issues with bias or credibility in this data?**
+
+-   Reliable: The provided as not that reliable since it only has 30
+    respondents and data is in short timescale with only 1 month of
+    records.
+-   Originality: Third part provider (Amazon Mechanical Turk)
+-   Comprehensive: Mostly match parameters with Bellabeat products.
+-   Current: The data collected was 6 years ago and it may be outdated
+    for current trends
+-   Cited: Data collected from third part has limited information.
+
+**2.4 Are there any problems with the data?:**
+
+-   A sample size of thirty FitBit users may not represent the entire
+    fitness population and age.
+-   Data is 6 years old, relevance of the data may be an issue.
+
+**2.5 Data Selection**
+
+*The following file is selected and copied for analysis.*
+
+-   dailyActivity_merged.csv
+-   sleepDay_merged.csv
+
+**2.6 Tool**
+
+-   We are going to use Excel for viewing
+-   R programming for data cleaning, transformation, and visualization
+
+**PHASE 3: PROCESS**
+
+-   Explore and observe data
+-   Merging Data Sets
+-   Check for null values and missing values
+-   Transform data and format data type
+-   Perform preliminary statistical analysis
+
+**3.1 Importing Relevant Files for Data Analysis**
+
+#installing packages
+
+#Remove"#" for actual code chunk
+```{r}
+#install.packages("tidyverse")
+#install.packages("dplyr")
+#install.packages("tidyr")
+#install.packages("ggplot2")
+#library(tidyverse)
+#library(dplyr)
+#library(tidyr)
+#library(ggplot2)
+```
+
+**3.2 Importing Relevant Datasets**
+
+```{r}
+
+daily_activity <- read.csv("C:/Users/Kent/Desktop/Coursera/DATA ANALYTICS/COURSE 8_Google Data Analytics Capstone/Capstone Project/Casestudy_Bellabeat/Bellabeat_cleaning/Bellabeat_CaseStudy/dailyActivity_merged.csv")
+sleepday_merged <- read.csv("C:/Users/Kent/Desktop/Coursera/DATA ANALYTICS/COURSE 8_Google Data Analytics Capstone/Capstone Project/Casestudy_Bellabeat/Bellabeat_cleaning/Bellabeat_CaseStudy/sleepDay_merged.csv")
+```
+
+**3.3 Checking the Data Structure**
+
+```{r}
+head(daily_activity)
+head(sleepday_merged)
+colnames(daily_activity)
+colnames(sleepday_merged)
+str(daily_activity)
+str(sleepday_merged)
+```
+
+**3.4 Data Transformation**
+
+-   Observe and Identify which columns is relevant for analysis
+
+**Creating new columns and transforming columns**
+
+**For *daily_activity* table**
+
+#We will create a new columns for better understanding
+
+-   New column *Total_Active_Minutes* by adding [VeryActiveMinutes +
+    FairlyActiveMinutes + LightlyActiveMinutes + SedentaryMinutes]
+
+```{r}
+daily_activity$Total_Active_Minutes <- daily_activity$VeryActiveMinutes + daily_activity$FairlyActiveMinutes + 
+                           daily_activity$LightlyActiveMinutes + daily_activity$SedentaryMinutes
+```
+
+-   New column *Total_Active_Hours*
+
+```{r}
+daily_activity$Total_Active_Hours <- round(daily_activity$Total_Active_Minutes/60)
+```
+
+-   And lastly, new column *Dates*, and change the format to (*M/D/Y*)
+
+```{r}
+daily_activity$Dates <- as.Date(daily_activity$ActivityDate, "%m/%d/%Y")
+```
+
+-   Renaming columns in *daily_activity*
+
+```{r}
+names(daily_activity) <- c("Id", "Activity_Date", "Total_Steps", "Total_Distance", "Tracker_Distance", "Logged_Activities_Distance",
+                           "Very_Active_Distance", "Moderately_Active_Distance", "Light_Active_Distance", "Sedentary_Active_Distance",
+                           "Very_Active_Minutes", "Fairly_Active_Minutes", "Lightly_Active_Minutes", "Sedentary_Minutes", "Calories",
+                           "Total_Active_Hours", "Total_Active_Mintues", "Dates") 
+```
+
+**For sleepDay_merged table**
+
+#We will create a new columns for better understanding
+
+-   New column *Total_Hours_Asleep*
+
+```{r}
+sleepday_merged$Total_Hours_Asleep <- round(sleepday_merged$TotalMinutesAsleep/60)
+```
+
+-   New column *Dates*
+
+```{r}
+sleepday_merged$Dates <- as.Date(sleepday_merged$SleepDay, "%m/%d/%Y")
+```
+
+-   Renaming columns in *sleepDay_merged* and change the format to
+    (*M/D/Y*)
+
+```{r}
+names(sleepday_merged) <- c("Id", "Sleep_Day", "Total_Sleep_Records", "Total_Minutes_Asleep", "Total_Time_In_Bed", "Total_Hours_Asleep",
+                            "Dates")
+```
+```{r}
+str(sleepday_merged)
+```
+
+
+**Creating new table and adding relevant columns**
+
+-   We will create new table for *daily_activity* as
+    *daily_activity_new* and adding relevant columns [Id, Dates,
+    Total_Steps, Total_Distance, Total_Active_Hours, Calories]
+    
+#Remove "#" for actual code chunk    
+
+```{r}
+#daily_activity_new <- daily_activity %>% 
+  #select(Id, Dates, Total_Steps, Total_Distance, Total_Active_Hours, Calories)
+
+```
+```{r include=FALSE}
+daily_activity_new <- read.csv("daily_activity_new.csv")
+```
+```{r}
+summary(daily_activity_new)
+```
+
+
+
+-   We will also create new table for *sleepDay_merged* as
+    *sleepDay_merged_new* and adding relevant columns [Id,
+    Dates,Total_Hours_Asleep]
+    
+```{r include=FALSE}
+sleepday_merged_new <- read.csv("sleepday_merged_new.csv")
+```
+#Remove "#" for actual code chunk
+```{r}
+#sleepday_merged_new <- sleepday_merged %>% 
+  #select(Id, Dates, Total_Hours_Asleep)
+```
+```{r}
+summary(sleepday_merged_new)
+```
+
+
+- Merging the new tables 
+
+#Remove "#" for actual code chunk
+```{r}
+#merged_data <- daily_activity_new %>%  #left_join(sleepday_merged_new)
+```
+
+
+- Lets use *summarize ()* & str() to analyze the new merged_data specifics
+```{r include=FALSE}
+merged_data <- read.csv("merged_data.csv")
+```
+
+```{r}
+summary(merged_data)
+```
+```{r}
+str(merged_data)
+```
+
+- Removing *duplicates* and *NA*
+
+#Remove "#" for the actual code chunk
+
+```{r}
+#merged_data <- distinct(merged_data)  
+#remove any duplicates
+
+#merged_data <- drop_na(merged_data) 
+#Remove missing data
+
+```
+
+- Analyzing the data
+
+#Remove "#" for the actual code chunk
+
+```{r}
+#merged_data %>%
+  #select(Total_Steps, Total_Active_Hours, Total_Distance, #Total_Hours_Asleep, Calories) %>%
+  summary(merged_data)
+```
+
+
+**PHASE4: ANALYZE**
+
+**4.1 Performing Calculations**
+
+Will analyze the statistics of the data that we manipulated
+
+- The average total steps the users logged 8,514 steps or 6.01 km which is not far from the recommended. According to CDC,For general fitness, most adults should aim for 10,000 steps per day. This figure may rise or fall depending on a person’s age, current fitness level, and health goals. Source: [Medical News Today](https://www.medicalnewstoday.com/articles/how-many-steps-should-you-take-a-day)
+
+- The more walks taken by each user the more calories are burned.
+- the more active a user, the more calories they are going to burn.
+
+
+**PHASE5: SHARE**
+
+- We will create a visualizations from the data and we will use the data to visualize the valuable insights to our stake holders
+
+**5.1 Calories Burned for every hour logged time**
+
+#Remove "#" for the actual code
+```{r }
+#ggplot(data = merged_data) +
+  #geom_point(mapping = aes(x = Total_Active_Hours, y = Calories, color = "Calories")) +
+  #labs(title = "Calories burned for every hour logged")
+```
+
+![](C:/Users/Kent/Desktop/Coursera/DATA ANALYTICS/COURSE 8_Google Data Analytics Capstone/Capstone Project/Casestudy_Bellabeat/Bellabeat_cleaning/Bellabeat_CaseStudy/Case_studyFinal_Documentation/Calories_burned.png)
+
+By analyzing the scatter plot using *GGplot*
+
+- By looking at the graph, if logged hours are increasing then the number of calories burnt is also increased.
+This is mainly due to sedentary minutes.
+
+- We can see the positive (weak) correlation here.
+
+- An uncommon dot near "zero" in the Y axis means their are zero calories burned at 24 hours, which could be due to certain causes.
+
+
+**5.2 Number of Steps vs Calories Burned**
+
+#Remove "#" for the actual code
+```{r}
+#ggplot(data = merged_data) +
+ #geom_point(mapping = aes(x = Total_Steps, y = Calories, color = "Calories")) +
+ #labs(title = "Total Steps vs Calories burned")
+```
+
+![](C:/Users/Kent/Desktop/Coursera/DATA ANALYTICS/COURSE 8_Google Data Analytics Capstone/Capstone Project/Casestudy_Bellabeat/Bellabeat_cleaning/Bellabeat_CaseStudy/Case_studyFinal_Documentation/Total_Steps_vs_Calories_Burned.png)
+
+
+#Remove "#" for the actual code
+```{r}
+#ggplot(data = merged_data) +
+  #geom_smooth(mapping = aes(x = Total_Steps, y = Calories)) +
+  #labs(title = "The relationship between total steps taken and calories burned")
+```
+![](C:/Users/Kent/Desktop/Coursera/DATA ANALYTICS/COURSE 8_Google Data Analytics Capstone/Capstone Project/Casestudy_Bellabeat/Bellabeat_cleaning/Bellabeat_CaseStudy/Case_studyFinal_Documentation/geomsmooth1.png)
+
+
+
+- By the looks of the graph we can say that it is positive correlations with limitations (*Scatterplot*)
+
+- We can clearly see and identify the outliers that for 0 steps there is still data of calories burned.
+
+- The longer they walk the higher the calories burned.
+
+**PHASE6: ACT**
+
+Based on our analysis backed by data and visualizations,
+
+We will share with you the following actions with highly business recommendations.
+
+1. The products on Bellabeat app should all collect data on calories burned  per activity. It is important to include all the activity it can perform and record. also aggregate data for all calories combined together.
+
+2. It has been observed that on average the users sleep 437.5 minutes per night. Bellabeat may recommend the users to set a target to 8 hours a day (480 minutes), and in case of meeting these targets share some motivation message, quote, or video with them.
+
+3. On weekends, Bellabeat app can also prompt notifications to encourage users to exercise.
+
+4. In order to encourage its users to adopt healthy sleeping, walking and workout practices and routines, Bellabeat can send periodic motivational quotes, videos and reminders to the users. Furthermore, the users can be encouraged to share their activities and results with friends and public to enable healthy competition in the user community.
+
+
+
+
+
+
+
+
+
+
